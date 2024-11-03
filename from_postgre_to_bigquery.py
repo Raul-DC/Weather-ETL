@@ -5,7 +5,7 @@ import os
 from google.oauth2 import service_account
 from dotenv import load_dotenv
 
-# Cargar las variables de entorno desde el archivo .env
+# Load environment variables from .env file
 load_dotenv()
 
 # Path to the credentials file
