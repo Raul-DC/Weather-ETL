@@ -29,14 +29,16 @@ The repository contains the following structure:
 
 ```plaintext
 Weather-ETL/
-├── scripts/
+├── sql/
+│   ├── Google Bigquery.txt  # SQL script for creating the Google Bigquery table
+│   └── PostgreSQL.txt # SQL script for creating the PostgreSQL table
+├──scripts/
 │   ├── extract_transform_load.py  # Script for data extraction, transformation, and loading into PostgreSQL
 │   └── from_postgre_to_bigquery.py # Script for loading data from PostgreSQL to BigQuery
-├── sql/
-│   └── create_tables.sql           # SQL script for creating PostgreSQL tables
-├── requirements.txt                # List of dependencies required for the project
+├── .env.example                    # Example of environment variables setup
+├── LICENSE
 ├── README.md                       # This project documentation
-└── .env.example                    # Example of environment variables setup
+└── requirements.txt                # List of dependencies required for the project
 ```
 
 ### Scripts
