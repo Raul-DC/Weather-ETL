@@ -1,85 +1,54 @@
-import requests
-import pandas as pd
+from google.cloud import bigquery
 from sqlalchemy import create_engine
-from dotenv import load_dotenv
+import pandas as pd
 import os
-from datetime import datetime, timedelta
+from google.oauth2 import service_account
 
-# Cargar las variables de entorno
-load_dotenv()
+# Path to the credentials file
+CREDENTIALS_PATH = os.getenv('CREDENTIALS_PATH')
 
-# Datos de la API
-API_KEY = os.getenv('API_KEY')  # Carga la API key desde el archivo .env
+# Authentication using the credentials file
+credentials = service_account.Credentials.from_service_account_file(CREDENTIALS_PATH)
 
-# URL de PostgreSQL
-POSTGRES_URL = os.getenv('POSTGRES_URL')  # Carga la URL de PostgreSQL desde el archivo .env
-
-# Para la versión 2.5:
-CITY = 'La Plata,AR'  # La Plata, Argentina
-URL = f'http://api.openweathermap.org/data/2.5/weather?q={CITY}&appid={API_KEY}'
-
-# Para la versión 3.0:
-# lat = -34.921263  # Latitud de La Plata
-# lon = -57.954351  # Longitud de La Plata
-# URL = f'https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&appid={API_KEY}'
-
-# Función para extraer datos de la API
-def extract_weather_data():
-    print("Extrayendo datos de la API...")
-    response = requests.get(URL)
-    if response.status_code == 200:
-        print("¡Datos obtenidos con éxito!")
-        return response.json()
-    else:
-        print("ERROR al obtener los datos de la API")
+# Function to extract data from PostgreSQL
+def extract_data_from_postgres():
+    try:
+        print('Extracting data from PostgreSQL...')
+        POSTGRES_URL = os.getenv('POSTGRES_URL')
+        engine = create_engine(POSTGRES_URL)
+        query = "SELECT * FROM weather_data"
+        df = pd.read_sql(query, engine)
+        if df.empty:
+            print('Warning: No data found in the weather_data table in PostgreSQL.')
+            return None
+        else:
+            print('Data extracted successfully!')
+            return df
+    except Exception as e:
+        print(f"Error extracting data from PostgreSQL: {e}")
         return None
 
-# Función para transformar los datos
-def transform_data(data):
-    # Extraer información relevante
-    # Para la versión 2.5:
-    print("Transformando los datos...")
-    weather = {
-        'city': data['name'],
-        'country': data['sys']['country'],  
-        'temperature': int(data['main']['temp'] - 273.15),
-        'weather': data['weather'][0]['description'],
-        'humidity': data['main']['humidity'],
-        'wind_speed': data['wind']['speed'],
-        'date_time': (datetime.utcfromtimestamp(data['dt']) - timedelta(hours=3)).strftime('%Y-%m-%d %H:%M:%S')  # Ajustar a UTC-3
-    }
-    
-    # Para la versión 3.0:
-    # weather = {
-    #     'latitude': lat,
-    #     'longitude': lon,
-    #     'temperature': data['current']['temp'],
-    #     'weather': data['current']['weather'][0]['description'],
-    #     'humidity': data['current']['humidity'],
-    #     'wind_speed': data['current']['wind_speed']
-    # }
+# Function to load data to BigQuery
+def load_data_to_bigquery(df):
+    try:
+        if df is None or df.empty:
+            print('No data to load into BigQuery.')
+            return None
+        else:
+            print('Starting data load to Google BigQuery...')
+            client = bigquery.Client(credentials=credentials)  # Use the credentials when creating the client
+            table_id = "weather-project-439111.weather_dataset.weather_data"  # Google Cloud -> Project ID.Dataset Name.Table Name
+        
+            job = client.load_table_from_dataframe(df, table_id)
+            job.result()  # Wait for the job to finish
+            print("Data loaded successfully into BigQuery!")
+    except Exception as e:
+        print(f"Error loading data into BigQuery: {e}")
 
-    print("¡Datos transformados con éxito!")
-    return pd.DataFrame([weather])
-
-# Función para cargar los datos a PostgreSQL
-def load_data(df):
-    print("Cargando los datos a PostgreSQL...")
-    # Configuración de la base de datos PostgreSQL
-    engine = create_engine(POSTGRES_URL)
-
-    # Cargando los datos a una tabla llamada "weather_data" (la tabla se crea desde 0 sino existe)
-    df.to_sql('weather_data', engine, if_exists='replace', index=False)
-    print("¡Datos cargados exitosamente en PostgreSQL! (Fin de la ejecucíon)")
-
-# Proceso ETL (app.py)
-def etl_process():
-    data = extract_weather_data()
-    if data:
-        df = transform_data(data)
-        load_data(df);
-    else:
-        print("No se pudo conseguir la Data");
+# ETL process to BigQuery (app.py)
+def etl_to_bigquery():
+    df = extract_data_from_postgres()
+    load_data_to_bigquery(df)
 
 if __name__ == "__main__":
-    etl_process()
+    etl_to_bigquery()
