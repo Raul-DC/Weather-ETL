@@ -11,6 +11,9 @@ load_dotenv()
 # Datos de la API
 API_KEY = os.getenv('API_KEY')  # Carga la API key desde el archivo .env
 
+# URL de PostgreSQL
+POSTGRES_URL = os.getenv('POSTGRES_URL')  # Carga la URL de PostgreSQL desde el archivo .env
+
 # Para la versión 2.5:
 CITY = 'La Plata,AR'  # La Plata, Argentina
 URL = f'http://api.openweathermap.org/data/2.5/weather?q={CITY}&appid={API_KEY}'
@@ -63,7 +66,7 @@ def transform_data(data):
 def load_data(df):
     print("Cargando los datos a PostgreSQL...")
     # Configuración de la base de datos PostgreSQL
-    engine = create_engine('postgresql://postgres:123456789@localhost:5000/weather_db')
+    engine = create_engine(POSTGRES_URL)
 
     # Cargando los datos a una tabla llamada "weather_data" (la tabla se crea desde 0 sino existe)
     df.to_sql('weather_data', engine, if_exists='replace', index=False)
