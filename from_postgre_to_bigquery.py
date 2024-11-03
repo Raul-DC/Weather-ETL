@@ -3,49 +3,53 @@ from sqlalchemy import create_engine
 import pandas as pd
 import os
 from google.oauth2 import service_account
+from dotenv import load_dotenv
 
-# Ruta al archivo de credenciales
+# Cargar las variables de entorno desde el archivo .env
+load_dotenv()
+
+# Path to the credentials file
 CREDENTIALS_PATH = os.getenv('CREDENTIALS_PATH')
 
-# Autenticación utilizando el archivo de credenciales
+# Authentication using the credentials file
 credentials = service_account.Credentials.from_service_account_file(CREDENTIALS_PATH)
 
-# Función para extraer los datos de PostgreSQL
+# Function to extract data from PostgreSQL
 def extract_data_from_postgres():
     try:
-        print('Extrayendo datos de PostgreSQL...')
+        print('Extracting data from PostgreSQL...')
         POSTGRES_URL = os.getenv('POSTGRES_URL')
         engine = create_engine(POSTGRES_URL)
         query = "SELECT * FROM weather_data"
         df = pd.read_sql(query, engine)
         if df.empty:
-            print('Advertencia: No se encontraron datos en la tabla weather_data de PostgreSQL.')
+            print('Warning: No data found in the weather_data table in PostgreSQL.')
             return None
         else:
-            print('¡Datos extraidos con éxito!')
+            print('Data extracted successfully!')
             return df
     except Exception as e:
-        print(f"Error al extraer datos de PostgreSQL: {e}")
+        print(f"Error extracting data from PostgreSQL: {e}")
         return None
 
-# Función para cargar los datos a BigQuery
+# Function to load data to BigQuery
 def load_data_to_bigquery(df):
     try:
         if df is None or df.empty:
-            print('No hay datos para cargar en BigQuery.')
+            print('No data to load into BigQuery.')
             return None
         else:
-            print('Iniciando carga de datos a Google Bigquery...')
-            client = bigquery.Client(credentials=credentials)  # Usa las credenciales al crear el cliente
-            table_id = "weather-project-439111.weather_dataset.weather_data" # Google Cloud -> Project ID.Dataset Name.Table Name
+            print('Starting data load to Google BigQuery...')
+            client = bigquery.Client(credentials=credentials)  # Use the credentials when creating the client
+            table_id = os.getenv('TABLE_ID')  # Google Cloud -> [Project ID].[Dataset Name].[Table Name]
         
             job = client.load_table_from_dataframe(df, table_id)
-            job.result()  # Esperar a que el job termine
-            print("¡Datos cargados exitosamente en BigQuery!")
+            job.result()  # Wait for the job to finish
+            print("Data loaded successfully into BigQuery!")
     except Exception as e:
-        print(f"Error al cargar datos en BigQuery: {e}")
+        print(f"Error loading data into BigQuery: {e}")
 
-# Proceso ETL a BigQuery (app.py)
+# ETL process to BigQuery (app.py)
 def etl_to_bigquery():
     df = extract_data_from_postgres()
     load_data_to_bigquery(df)
