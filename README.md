@@ -32,7 +32,7 @@ Weather-ETL/
 ├── sql/
 │   ├── Google Bigquery.txt  # SQL script for creating the Google Bigquery table
 │   └── PostgreSQL.txt # SQL script for creating the PostgreSQL table
-├──scripts/
+├── scripts/
 │   ├── extract_transform_load.py  # Script for data extraction, transformation, and loading into PostgreSQL
 │   └── from_postgre_to_bigquery.py # Script for loading data from PostgreSQL to BigQuery
 ├── .env.example                    # Example of environment variables setup
@@ -45,9 +45,15 @@ Weather-ETL/
 
 1. **extract_transform_load.py**: 
     - This script handles the extraction of weather data from the OpenWeather API, transforming the data into a structured format, and loading it into a PostgreSQL database. It can be executed independently to update the database with the latest weather information.
+    - Example of the script output:  
+    ![image](https://github.com/user-attachments/assets/7363f686-f68d-43d0-9bcf-b83e58b1d1c7)
+
 
 2. **from_postgre_to_bigquery.py**: 
     - This script retrieves the transformed data from PostgreSQL and loads it into Google BigQuery for long-term storage. It connects to Google Cloud using service account credentials and automates the process of transferring the weather data into the cloud.
+    - Example of the script output:  
+    ![image](https://github.com/user-attachments/assets/0ab3603e-d5fc-4248-a680-5530787ae6e2)
+
 
 ## How to Set Up
 
@@ -118,11 +124,21 @@ Weather-ETL/
 
 3. **Data Loading (PostgreSQL)**:
    - The transformed data is loaded into a table called `weather_data`. This relational database allows for structured storage and further processing.
-   
-   [image] -> Visual representation of data flow from API to PostgreSQL
+   - Example of table structure:  
+     ![image](https://github.com/user-attachments/assets/97040d9f-d92e-4b6c-8179-a48a4a984d9b)
+
+   - Example of a `SELECT *` query:  
+     ![image](https://github.com/user-attachments/assets/b994f5cb-8b83-40ea-a7d6-ed116a00d450)
+
 
 4. **Data Warehousing (Google BigQuery)**:
    - Data is migrated from PostgreSQL to BigQuery, where it can be queried and analyzed at scale using SQL. BigQuery is an ideal tool for storing large volumes of data for analytical purposes.
+   - Example of table structure in BigQuery:  
+     ![image](https://github.com/user-attachments/assets/0586a499-f970-4716-ad43-36a6a1dc2eef)
+
+   - Example of a `SELECT *` query:  
+     ![image](https://github.com/user-attachments/assets/f24e8f89-9030-43f8-b30a-979a61c291f0)
+
 
 ## Environment Variables
 
