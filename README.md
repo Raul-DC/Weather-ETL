@@ -4,9 +4,15 @@
 
 The **Weather-ETL** project demonstrates an end-to-end ETL (Extract, Transform, Load) process for weather data, providing a practical solution for gathering, processing, and storing weather information. The data flows from a public weather API into a PostgreSQL database and then into Google BigQuery for further analysis and long-term storage.
 
+ OpenWeather 🌦️:
+
 ![image](https://github.com/user-attachments/assets/984e639f-0264-449b-b5b0-542ae35862e1)
 
-![image](https://github.com/user-attachments/assets/93dfccf7-623e-4d67-b6f6-7c6dd2ed7c23)
+ PostgreSQL 🐘:
+
+![image](https://github.com/user-attachments/assets/e4741731-f468-4e1f-b68f-3476aa28bef4)
+
+ Google Bigquery 📊🔍:
 
 ![image](https://github.com/user-attachments/assets/c8b3a46a-5dfe-4567-a604-e7669315864b)
 
