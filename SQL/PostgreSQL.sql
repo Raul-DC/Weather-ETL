@@ -1,4 +1,4 @@
-SQL query to create the table:
+-- SQL query to create the table:
 
 CREATE TABLE weather_data (
     country TEXT,
