@@ -1,4 +1,4 @@
-SQL query to create the table:
+-- SQL query to create the table:
 
 CREATE TABLE `weather_dataset.weather_data` (
     city STRING NULLABLE OPTIONS(description="City name."),
